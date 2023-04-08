@@ -15,7 +15,6 @@ def filter_target_stock_data():
         df_22_23_filter.to_csv('bda2023_mid_dataset/stock_data_2019_2023_filter.csv', encoding='utf_8_sig' , index=False)
     return df_22_23_filter
 
-
 def clean_target_stock_data(df):
     # 將年月日轉換成 datetime 型態
     df['年月日'] = pd.to_datetime(df['年月日'])
@@ -23,22 +22,25 @@ def clean_target_stock_data(df):
     df['星期'] = df['星期'].replace([4, 3, 2, 1, 0],['星期五', '星期四', '星期三', '星期二', '星期一'])
     df = df.sort_values(by='年月日', ascending=True)
 
-    friday_df = df.loc[df['年月日'].dt.weekday==4].copy()
-    friday_df.loc[:, '相較前一天的波動'] = friday_df['收盤價(元)'].pct_change()
-    friday_df.loc[:, '漲跌'] = friday_df['相較前一天的波動'].apply(
-        lambda x: '上漲' if x > 0.025 else '下跌' if x < -0.05 else '無')
+    df["MA_5"] = df["收盤價(元)"].rolling(5).mean()
+    df.loc[:, '相較前一天的波動'] = df['MA_5'].pct_change()
+    
+    sigma_pos_avg = df[df["相較前一天的波動"] > 0 ]["相較前一天的波動"].mean()
+    sigma_neg_avg = df[df["相較前一天的波動"] < 0 ]["相較前一天的波動"].mean()
 
-    df = pd.merge(df, friday_df[['年月日', '漲跌']], on='年月日', how='left')
-    df['漲跌'] = df['漲跌'].fillna(method='bfill')
-
+    df.loc[:, '漲跌'] = df['相較前一天的波動'].apply(
+        lambda x: '上漲' if x > sigma_pos_avg else '下跌' if x < sigma_neg_avg else '無')    
+    
     return df
     
 
 def main():
     df_22_23_filter = filter_target_stock_data()
     df_22_23_filter = clean_target_stock_data(df_22_23_filter)
-    print(df_22_23_filter.head(20))
+    print(df_22_23_filter.loc[:, ['年月日', '收盤價(元)', 'MA_5', '相較前一天的波動']].head(10))
+    print(df_22_23_filter.head(10))
     print(df_22_23_filter['漲跌'].value_counts())
+    
 
 if __name__ == "__main__":
     main()
