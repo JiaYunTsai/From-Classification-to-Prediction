@@ -1,0 +1,8 @@
+bda2023_mid_dataset/*.csv
+bda2023_mid_dataset/*.xlsx
+bda2023_mid_dataset/*.csv.icloud
+bda2023_mid_dataset/*.xlsx.icloud
+bda2023_mid_dataset/Archive/
+
+AIDA-SC/example/
+.DS_Store
