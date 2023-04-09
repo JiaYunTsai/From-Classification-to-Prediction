@@ -25,8 +25,10 @@ def clean_target_stock_data(df):
     df["MA_5"] = df["收盤價(元)"].rolling(5).mean()
     df.loc[:, '相較前一天的波動'] = df['MA_5'].pct_change()
     
-    sigma_pos_avg = df[df["相較前一天的波動"] > 0 ]["相較前一天的波動"].mean()
-    sigma_neg_avg = df[df["相較前一天的波動"] < 0 ]["相較前一天的波動"].mean()
+    sigma_pos_avg = df[df["相較前一天的波動"] > 0 ]["相較前一天的波動"].median()#.quantile(0.25)
+    sigma_neg_avg = df[df["相較前一天的波動"] < 0 ]["相較前一天的波動"].median()#.quantile(0.75) #因為是負的，所以取0.75
+    print("sigma_pos_avg: ", sigma_pos_avg)
+    print("sigma_neg_avg: ", sigma_neg_avg)
 
     df.loc[:, '漲跌'] = df['相較前一天的波動'].apply(
         lambda x: '上漲' if x > sigma_pos_avg else '下跌' if x < sigma_neg_avg else '無')    
@@ -40,6 +42,7 @@ def main():
     print(df_22_23_filter.loc[:, ['年月日', '收盤價(元)', 'MA_5', '相較前一天的波動']].head(10))
     print(df_22_23_filter.head(10))
     print(df_22_23_filter['漲跌'].value_counts())
+    df_22_23_filter.to_csv('bda2023_mid_dataset/stock_data_2019_2023_filter_clean.csv', encoding='utf_8_sig' , index=False)
     
 
 if __name__ == "__main__":
