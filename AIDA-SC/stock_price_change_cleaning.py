@@ -25,8 +25,8 @@ def clean_target_stock_data(df):
     df["MA_5"] = df["收盤價(元)"].rolling(5).mean()
     df.loc[:, '相較前一天的波動'] = df['MA_5'].pct_change()
     
-    sigma_pos_avg = df[df["相較前一天的波動"] > 0 ]["相較前一天的波動"].median()#.quantile(0.25)
-    sigma_neg_avg = df[df["相較前一天的波動"] < 0 ]["相較前一天的波動"].median()#.quantile(0.75) #因為是負的，所以取0.75
+    sigma_pos_avg = df[df["相較前一天的波動"] > 0 ]["相較前一天的波動"].quantile(0.25) #median()
+    sigma_neg_avg = df[df["相較前一天的波動"] < 0 ]["相較前一天的波動"].quantile(0.75) #因為是負的，所以取0.75
     print("sigma_pos_avg: ", sigma_pos_avg)
     print("sigma_neg_avg: ", sigma_neg_avg)
 
