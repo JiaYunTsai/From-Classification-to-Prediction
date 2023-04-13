@@ -9,6 +9,7 @@ from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy import sparse
 from sklearn.metrics.pairwise import linear_kernel
+import modling
 
 def up_down_data_split(stock_df, df, keywords):
     stock_df['年月日'] = pd.to_datetime(stock_df['年月日']).dt.date
@@ -37,10 +38,8 @@ def monpa_split(query):
                         if len(term.strip()) > 1)
     return cut_text
 
-def get_content_list(df):
+def get_content_set(df_up, df_down):
     content_set = {'upward_trend': [], 'downward_trend': []}
-    df_up = df.loc[df['漲跌'] == 'upward_trend']
-    df_down = df.loc[df['漲跌'] == 'downward_trend']
 
     for df in [df_up, df_down]:
         content_list = []
@@ -74,6 +73,7 @@ def get_tf_counter_df(content_set, up_down):
     tf_counter = down_tf_counter + up_tf_counter
 
     tf_counter = pd.DataFrame(tf_counter, columns=['term', 'count'])
+    print(tf_counter.shape)
     tf_counter.to_csv(f'bda2023_mid_dataset/limit_{up_down}_term.csv', encoding='utf_8_sig' , index=False)
     return tf_counter
 
@@ -94,6 +94,8 @@ def get_idf_limit_model(df, content_set, query):
     content_list = content_set['upward_trend'] + content_set['downward_trend']
     X = vectorizer.fit_transform(content_list)
 
+    # print(pd.DataFrame(X.toarray(),columns=vocab_id_dict)) 
+
     sparse.save_npz("tmp/limit_model.npz", X)
     cut_text = monpa_split(query)
     q =vectorizer.fit_transform([cut_text])
@@ -101,6 +103,16 @@ def get_idf_limit_model(df, content_set, query):
     cosine_similarities = linear_kernel(q[0:1], X).flatten() #與給定文件集的向量做相似度計算
     related_docs_indices = cosine_similarities.argsort() #將相似度由小至大做排序，並轉換成文件編號
     print(related_docs_indices)
+
+    return X, q
+
+def get_y_label(content_set):
+    upward_count = len(content_set["upward_trend"])
+    down_count = len(content_set["downward_trend"])
+    y = []
+    y.extend(['看漲'] * upward_count)
+    y.extend(['看跌'] * down_count)   
+    return y
 
 def main():
     stock_df = pd.read_csv('bda2023_mid_dataset/stock_data_2019_2023_filter_clean.csv')
@@ -116,18 +128,38 @@ def main():
     df_up, df_down = up_down_data_split(stock_df,df_merged, keywords)
     print("data split done!\n")
 
-    df = pd.concat([df_up.head(10), df_down.head(10)], axis=0, ignore_index=True)
-    content_set = get_content_list(df)    
-
-    tf_counter_df = get_tf_counter_df(content_set,"none")
+    content_set = get_content_set(df_up.head(10), df_down.head(10))
+    
+    tf_counter_df= get_tf_counter_df(content_set,"none")
     print("tf_counder done!!!\n")
  
     query='台股加權指數在最近9個交易日，從最高到最低點，跌了2,544點，創下史上最快速的失速列車紀錄；\
     12日台股盤中急挫1,418點，市場衰鴻遍野，據統計，盤中最多曾有711檔個股觸及跌停、占上市櫃的四成比重，\
     最後仍有251檔收跌停，其中，陽明等15檔股價亮燈跌停，仍有7千張以上賣單高掛，貨櫃三雄均入榜。'
+    
 
-    get_idf_limit_model(tf_counter_df, content_set, query)
+    X, q = get_idf_limit_model(tf_counter_df, content_set, query)
     print("idf_limit done")
+
+    y = get_y_label(content_set)
+
+    print("train data check")
+    result  = modling.NB_predict(X, y, q)
+    print("NB_predict", result)
+
+    print("X", type(X), X.shape)
+    print("y", len(y))
+    print("\n==================================")
+    print("start NB modling")
+    modling.NB_modle(X, y)
+
+    print("\n==================================")
+    print("start DecisionTree modling")
+    modling.DecisionTree_modle(X, y)
+
+    print("\n==================================")
+    print("start SVC modling")
+    modling.SVC_modle(X, y)
     
 if __name__ == "__main__":
     main()
