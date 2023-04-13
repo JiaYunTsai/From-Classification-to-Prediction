@@ -31,7 +31,7 @@ def clean_target_stock_data(df):
     print("sigma_neg_avg: ", sigma_neg_avg)
 
     df.loc[:, '漲跌'] = df['相較前一天的波動'].apply(
-        lambda x: '上漲' if x > sigma_pos_avg else '下跌' if x < sigma_neg_avg else '無')    
+        lambda x: 'upward_trend' if x > sigma_pos_avg else 'downward_trend' if x < sigma_neg_avg else '無')    
     
     return df
     

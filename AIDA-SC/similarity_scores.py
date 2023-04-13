@@ -68,8 +68,8 @@ def get_tf_counter_df(content_set, up_down):
     up_tf_counter = Counter(up_list).most_common(100)
     down_tf_counter = Counter(down_list).most_common(100)
 
-    print(f"Top 10 up word list{ up_tf_counter[:10]}\n")
-    print(f"Top 10 down word list{ down_tf_counter[:10]}\n")
+    print(f"Top 10 up word list{ up_tf_counter[:10]} from {len(up_list)} up_list\n")
+    print(f"Top 10 down word list{ down_tf_counter[:10]} from {len(down_list)} up_list\n")
 
     tf_counter = down_tf_counter + up_tf_counter
 
