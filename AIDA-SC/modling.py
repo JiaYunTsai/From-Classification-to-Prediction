@@ -79,7 +79,7 @@ def RF_model(X, y):
 
 def GBC_model1(X, y):
     gbm = GradientBoostingClassifier(
-        n_estimators=100, max_depth=5, learning_rate=0.05, random_state=42)
+        n_estimators=100, max_depth=5, learning_rate=0.02, random_state=42)
     scores = cross_val_score(gbm, Ｘ, y, cv=5)
     print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
