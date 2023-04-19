@@ -145,7 +145,6 @@ def main():
     print("data split done!\n")
 
     content_set = get_content_set(df_up, df_down)
-    # content_set = get_content_set(df_up.head(20), df_down.head(20))
 
     tf_counter_df = get_tf_counter_df(content_set, "none")
     print("tf_counder done!!!\n")
