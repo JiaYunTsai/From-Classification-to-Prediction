@@ -1,11 +1,11 @@
 from sklearn.model_selection import GridSearchCV
 from scipy import sparse
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn import metrics
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, make_scorer
 
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
@@ -15,8 +15,13 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from xgboost import XGBClassifier
 
+
 # import numpy as np
 # from catboost imports CatBoostRegressor
+# def model_score(y_true, y_pred):
+#     tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+#     score = (tp + tn) / (tp + fp + fn + tn)  # 计算准确率
+#     return score
 
 
 def NB_predict(X, y, q):
@@ -46,6 +51,10 @@ def DecisionTree_modle(X, y):
     classifier = DecisionTreeClassifier(criterion="entropy")
     scores = cross_val_score(classifier, X, y, cv=5,
                              scoring='accuracy')  # 交叉驗證，計算準確率
+    y_pred = cross_val_predict(classifier, X, y, cv=5)
+    conf_mat = confusion_matrix(y, y_pred)
+    print(conf_mat)
+
     print(scores)
     print("Avg. Accuracy:", scores.mean())
 
@@ -57,42 +66,48 @@ def SVC_modle(X, y):
     from sklearn.model_selection import cross_val_score
     scores = cross_val_score(classifier, X, y, cv=5,
                              scoring='accuracy')  # 交叉驗證，計算準確率
+    y_pred = cross_val_predict(classifier, X, y, cv=5)
+    conf_mat = confusion_matrix(y, y_pred)
+    print(conf_mat)
     print(scores)
     print("Avg. Accuracy:", scores.mean())
 
 
 def XGboost(X, y):
-    xgb = XGBClassifier()
-    scores = cross_val_score(xgb, X, y, cv=5, error_score='raise')
+    classifier = XGBClassifier()
+    scores = cross_val_score(
+        classifier, X, y, cv=5, error_score='raise', scoring='accuracy')
+    y_pred = cross_val_predict(classifier, X, y, cv=5)
+    conf_mat = confusion_matrix(y, y_pred)
+    print(conf_mat)
     print("Cross-validation scores:", scores)
     print("Mean accuracy:", scores.mean())
 
 
 def RF_model(X, y):
-    rf = RandomForestClassifier(
+    classifier = RandomForestClassifier(
         n_estimators=100, max_features='sqrt', random_state=42)
-
-    scores = cross_val_score(rf, X, y, cv=5)
+    y_pred = cross_val_predict(classifier, X, y, cv=5)
+    conf_mat = confusion_matrix(y, y_pred)
+    print(conf_mat)
+    scores = cross_val_score(classifier, X, y, cv=5, scoring='accuracy')
     mean_accuracy = scores.mean()
     print("Mean accuracy:", mean_accuracy)
 
 
-def GBC_model1(X, y):
-    gbm = GradientBoostingClassifier(
-        n_estimators=100, max_depth=5, learning_rate=0.02, random_state=42)
-    scores = cross_val_score(gbm, Ｘ, y, cv=5)
-    print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-
-
 def GBC_model(X, y):
-    gbm = GradientBoostingClassifier(learning_rate=0.005, random_state=42)
+    classifier = GradientBoostingClassifier(
+        learning_rate=0.005, random_state=42)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.30)
     param_grid = {'n_estimators': [50, 100, 150, 200, 250]}
-    grid_search = GridSearchCV(gbm, param_grid, cv=5, scoring='accuracy')
+    grid_search = GridSearchCV(
+        classifier, param_grid, cv=5, scoring='accuracy')
     grid_search.fit(X_train, y_train)
     best_model = grid_search.best_estimator_
-
+    y_pred = cross_val_predict(classifier, X, y, cv=5)
+    conf_mat = confusion_matrix(y, y_pred)
+    print(conf_mat)
     scores = cross_val_score(best_model, Ｘ, y, cv=5)
     print("Best number of estimators:", best_model.n_estimators)
 

@@ -137,9 +137,9 @@ def main():
 
     df_merged = pd.concat([news_df, forum_df, bbs_df],
                           axis=0, ignore_index=True)
-    keywords = "台達電|2308"
+    # keywords = "台達電|2308"
     # keywords = "台達電|2308|電子零組件|汽車電子|電源管理|散熱|電源供應器"
-    # keywords = "台達電|2308|電子零組件|汽車電子|電源管理|散熱|電源供應器|乾坤科技|晶睿通訊|力林科技光寶科|群電|康舒"
+    keywords = "台達電|2308|電子零組件|汽車電子|電源管理|散熱|電源供應器|乾坤科技|晶睿通訊|力林科技光寶科|群電|康舒"
 
     df_up, df_down = up_down_data_split(stock_df, df_merged, keywords)
     print("data split done!\n")
@@ -189,9 +189,6 @@ def main():
     print("\n==================================")
     print("GBC_MODEL")
     modling.GBC_model(X, y)
-    print("\n==================================")
-    print("GBC_MODEL1")
-    modling.GBC_model1(X, y)
 
 
 if __name__ == "__main__":
