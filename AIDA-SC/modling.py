@@ -98,17 +98,17 @@ def RF_model(X, y):
 def GBC_model(X, y):
     classifier = GradientBoostingClassifier(
         learning_rate=0.005, random_state=42)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.30)
-    param_grid = {'n_estimators': [50, 100, 150, 200, 250]}
-    grid_search = GridSearchCV(
-        classifier, param_grid, cv=5, scoring='accuracy')
-    grid_search.fit(X_train, y_train)
-    best_model = grid_search.best_estimator_
+    # X_train, X_test, y_train, y_test = train_test_split(
+    #     X, y, test_size=0.30)
+    # param_grid = {'n_estimators': [50, 100, 150, 200, 250]}
+    # grid_search = GridSearchCV(
+    #     classifier, param_grid, cv=5, scoring='accuracy')
+    # grid_search.fit(X_train, y_train)
+    # best_model = grid_search.best_estimator_
     y_pred = cross_val_predict(classifier, X, y, cv=5)
     conf_mat = confusion_matrix(y, y_pred)
     print(conf_mat)
-    scores = cross_val_score(best_model, Ｘ, y, cv=5)
-    print("Best number of estimators:", best_model.n_estimators)
+    # scores = cross_val_score(best_model, Ｘ, y, cv=5)
+    # print("Best number of estimators:", best_model.n_estimators)
 
-    print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
+    # print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))

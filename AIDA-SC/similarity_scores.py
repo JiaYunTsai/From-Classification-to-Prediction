@@ -145,6 +145,7 @@ def main():
     print("data split done!\n")
 
     content_set = get_content_set(df_up, df_down)
+    # content_set = get_content_set(df_up.head, df_down.head(20))
 
     tf_counter_df = get_tf_counter_df(content_set, "none")
     print("tf_counder done!!!\n")
@@ -177,17 +178,17 @@ def main():
     modling.SVC_modle(X, y)
 
     print("\n==================================")
-    print("XG modling")
-    y = [1 if i == "看漲" else 0 for i in y]
-    modling.XGboost(X, y)
-
-    print("\n==================================")
     print('RF_MODEL')
     modling.RF_model(X, y)
 
     print("\n==================================")
     print("GBC_MODEL")
     modling.GBC_model(X, y)
+
+    print("\n==================================")
+    print("XG modling")
+    y = [1 if i == "看漲" else 0 for i in y]
+    modling.XGboost(X, y)
 
 
 if __name__ == "__main__":
